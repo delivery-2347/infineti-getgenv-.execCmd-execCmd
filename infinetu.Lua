@@ -1,5 +1,5 @@
 if IY_LOADED and not _G.IY_DEBUG then
-	-- error("Infinite Yield is already running!", 0)
+	-- error("Infinite Yield is already running!", 0) function execCmd(cmdStr,speaker,store) getgenv().execCmd = execCmd https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source
 	return
 end
 
@@ -145,11 +145,12 @@ if makefolder and isfolder and writefile and isfile then
 				writefile(path, game:HttpGet((path:gsub("infiniteyield/", assets))))
 			end
 		end
+		-- honestly just blame your phone if the assets appear in your gallery
 		if IsOnMobile then writefile("infiniteyield/assets/.nomedia", "") end
 	end)
 end
 
-currentVersion = "6.4.1"
+currentVersion = "6.4.2"
 
 ScaledHolder = Instance.new("Frame")
 Scale = Instance.new("UIScale")
@@ -4460,15 +4461,15 @@ end
 
 CMDs = {}
 CMDs[#CMDs + 1] = {NAME = 'discord / support / help', DESC = 'Invite to the Infinite Yield discord server.'}
-CMDs[#CMDs + 1] = {NAME = 'guiscale [number]', DESC = 'Changes the size of the gui. [number] accepts both decimals and whole numbers. Min is 0.4 and Max is 2'}
-CMDs[#CMDs + 1] = {NAME = 'console', DESC = 'Loads Roblox console'}
-CMDs[#CMDs + 1] = {NAME = 'oldconsole', DESC = 'Loads old Roblox console'}
-CMDs[#CMDs + 1] = {NAME = 'explorer / dex', DESC = 'Opens DEX by Moon'}
-CMDs[#CMDs + 1] = {NAME = 'olddex / odex', DESC = 'Opens Old DEX by Moon'}
-CMDs[#CMDs + 1] = {NAME = 'remotespy / rspy', DESC = 'Opens Simple Spy V3'}
+CMDs[#CMDs + 1] = {NAME = 'guiscale [number]', DESC = 'Changes the size of the gui. [number] accepts decimals and whole numbers. Min is 0.4 and Max is 2'}
+CMDs[#CMDs + 1] = {NAME = 'console', DESC = 'Opens the Roblox console'}
+CMDs[#CMDs + 1] = {NAME = 'oldconsole', DESC = 'Loads an old-themed Roblox console'}
+CMDs[#CMDs + 1] = {NAME = 'explorer / dex', DESC = 'Opens Dex++ by Chillz'}
+CMDs[#CMDs + 1] = {NAME = 'moondex / mdex', DESC = 'Opens DEX by Moon'}
+CMDs[#CMDs + 1] = {NAME = 'remotespy / rspy', DESC = 'Opens Cobalt to intercept incoming and outgoing network traffic'}
+CMDs[#CMDs + 1] = {NAME = 'simplespy / sspy', DESC = 'Opens Simple Spy V3 to intercept remote calls from the client to the server'}
 CMDs[#CMDs + 1] = {NAME = 'audiologger / alogger', DESC = 'Opens Edges audio logger'}
 CMDs[#CMDs + 1] = {NAME = 'serverinfo / info', DESC = 'Gives you info about the server'}
-CMDs[#CMDs + 1] = {NAME = 'serverscan', DESC = 'Scans strings for server references and reconstructs them'}
 CMDs[#CMDs + 1] = {NAME = 'jobid', DESC = 'Copies the games JobId to your clipboard'}
 CMDs[#CMDs + 1] = {NAME = 'notifyjobid', DESC = 'Notifies you the games JobId'}
 CMDs[#CMDs + 1] = {NAME = 'rejoin / rj', DESC = 'Makes you rejoin the game'}
@@ -4751,6 +4752,8 @@ CMDs[#CMDs + 1] = {NAME = 'loopoof', DESC = 'Loops everyones character sounds (e
 CMDs[#CMDs + 1] = {NAME = 'unloopoof', DESC = 'Stops the oof chaos'}
 CMDs[#CMDs + 1] = {NAME = 'muteboombox [player]', DESC = 'Mutes someones boombox'}
 CMDs[#CMDs + 1] = {NAME = 'unmuteboombox [player]', DESC = 'Unmutes someones boombox'}
+CMDs[#CMDs + 1] = {NAME = 'hitboxes', DESC = 'Shows all rendered bounding boxes'}
+CMDs[#CMDs + 1] = {NAME = 'unhitboxes', DESC = 'Stops showing all rendered bounding boxes'}
 CMDs[#CMDs + 1] = {NAME = 'hitbox [player] [size] [transparency]', DESC = 'Expands the hitbox for players HumanoidRootPart (default is 1)'}
 CMDs[#CMDs + 1] = {NAME = 'headsize [player] [size]', DESC = 'Expands the head size for players Head (default is 1)'}
 CMDs[#CMDs + 1] = {NAME = '', DESC = ''}
@@ -5164,7 +5167,7 @@ function execCmd(cmdStr,speaker,store)
 			end
 		end
 	end)
-end
+end	
 
 getgenv().execCmd = execCmd
 
@@ -6911,10 +6914,6 @@ addcmd('serverinfo',{'info','sinfo'},function(args, speaker)
 	end)
 end)
 
-addcmd("serverscan", {}, function(args, speaker)
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/refs/heads/main/serverscanner.lua"))()
-end)
-
 addcmd("jobid", {}, function(args, speaker)
 	toClipboard("roblox://placeId=" .. PlaceId .. "&gameInstanceId=" .. JobId)
 end)
@@ -6973,39 +6972,43 @@ addcmd("exit", {}, function(args, speaker)
 	game:Shutdown()
 end)
 
+local NoclipParts = {}
 local Noclipping = nil
-addcmd('noclip',{},function(args, speaker)
-	Clip = false
-	wait(0.1)
-	local function NoclipLoop()
-		if Clip == false and speaker.Character ~= nil then
-			for _, child in pairs(speaker.Character:GetDescendants()) do
-				if child:IsA("BasePart") and child.CanCollide == true and child.Name ~= floatName then
-					child.CanCollide = false
-				end
-			end
-		end
-	end
-	Noclipping = RunService.Stepped:Connect(NoclipLoop)
-	if args[1] and args[1] == 'nonotify' then return end
-	notify('Noclip','Noclip Enabled')
+addcmd("noclip", {}, function(args, speaker)
+    pcall(function() Noclipping:Disconnect() end)
+    Clip = false
+    task.wait(0.1)
+    NoclipParts = {}
+    Noclipping = RunService.Stepped:Connect(function()
+        if Clip == false and speaker.Character ~= nil then
+            for _, child in pairs(speaker.Character:GetDescendants()) do
+                if child:IsA("BasePart") and child.CanCollide == true and child.Name ~= floatName then
+                    child.CanCollide = false
+                    NoclipParts[child] = true
+                end
+            end
+        end
+    end)
+    if args[1] and args[1] == "nonotify" then return end
+    notify("Noclip", "Noclip Enabled")
 end)
 
-addcmd('clip',{'unnoclip'},function(args, speaker)
-	if Noclipping then
-		Noclipping:Disconnect()
-	end
-	Clip = true
-	if args[1] and args[1] == 'nonotify' then return end
-	notify('Noclip','Noclip Disabled')
+addcmd("unnoclip", {"clip"}, function(args, speaker)
+    pcall(function() Noclipping:Disconnect() end)
+    Clip = true
+    task.wait(0.1)
+    for child, _ in pairs(NoclipParts) do
+        if typeof(child) == "Instance" and child:IsA("BasePart") and child.Parent then
+            child.CanCollide = true
+        end
+    end
+    NoclipParts = {}
+    if args[1] and args[1] == "nonotify" then return end
+    notify("Noclip", "Noclip Disabled")
 end)
 
-addcmd('togglenoclip',{},function(args, speaker)
-	if Clip then
-		execCmd('noclip')
-	else
-		execCmd('clip')
-	end
+addcmd("togglenoclip", {}, function(args, speaker)
+    execCmd(Clip and "noclip" or "unnoclip")
 end)
 
 FLYING = false
@@ -10445,95 +10448,26 @@ addcmd('oldconsole',{},function(args, speaker)
 end)
 
 addcmd("explorer", {"dex"}, function(args, speaker)
-	notify("Loading", "Hold on a sec")
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
+    notify("Loading", "Hold on a sec")
+    loadstring(game:HttpGet("https://github.com/AZYsGithub/DexPlusPlus/releases/latest/download/out.lua"))()
 end)
 
-addcmd('olddex', {'odex'}, function(args, speaker)
-	notify('Loading old explorer', 'Hold on a sec')
-
-	local getobjects = function(a)
-		local Objects = {}
-		if a then
-			local b = InsertService:LoadLocalAsset(a)
-			if b then 
-				table.insert(Objects, b) 
-			end
-		end
-		return Objects
-	end
-
-	local Dex = getobjects("rbxassetid://10055842438")[1]
-	Dex.Parent = PARENT
-
-	local function Load(Obj, Url)
-		local function GiveOwnGlobals(Func, Script)
-			-- Fix for this edit of dex being poorly made
-			-- I (Alex) would like to commemorate whoever added this dex in somehow finding the worst dex to ever exist
-			local Fenv, RealFenv, FenvMt = {}, {
-				script = Script,
-				getupvalue = function(a, b)
-					return nil -- force it to use globals
-				end,
-				getreg = function() -- It loops registry for some idiotic reason so stop it from doing that and just use a global
-					return {} -- force it to use globals
-				end,
-				getprops = getprops or function(inst)
-					if getproperties then
-						local props = getproperties(inst)
-						if props[1] and gethiddenproperty then
-							local results = {}
-							for _,name in pairs(props) do
-								local success, res = pcall(gethiddenproperty, inst, name)
-								if success then
-									results[name] = res
-								end
-							end
-
-							return results
-						end
-
-						return props
-					end
-
-					return {}
-				end
-			}, {}
-			FenvMt.__index = function(a,b)
-				return RealFenv[b] == nil and getgenv()[b] or RealFenv[b]
-			end
-			FenvMt.__newindex = function(a, b, c)
-				if RealFenv[b] == nil then 
-					getgenv()[b] = c 
-				else 
-					RealFenv[b] = c 
-				end
-			end
-			setmetatable(Fenv, FenvMt)
-			pcall(setfenv, Func, Fenv)
-			return Func
-		end
-
-		local function LoadScripts(_, Script)
-			if Script:IsA("LocalScript") then
-				task.spawn(function()
-					GiveOwnGlobals(loadstring(Script.Source,"="..Script:GetFullName()), Script)()
-				end)
-			end
-			table.foreach(Script:GetChildren(), LoadScripts)
-		end
-
-		LoadScripts(nil, Obj)
-	end
-
-	Load(Dex)
+addcmd("moondex", {"mdex"}, function(args, speaker)
+    notify("Loading", "Hold on a sec")
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
 end)
 
-addcmd('remotespy',{'rspy'},function(args, speaker)
-	notify("Loading",'Hold on a sec')
-	-- Full credit to exx, creator of SimpleSpy
-	-- also thanks to Amity for fixing
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua"))()
+addcmd("remotespy", {"rspy", "cobalt", "cspy"}, function(args, speaker)
+    notify("Loading", "Hold on a sec")
+    -- Full credit to notpoiu, creator of Cobalt
+    loadstring(game:HttpGet("https://github.com/notpoiu/cobalt/releases/latest/download/Cobalt.luau"))()
+end)
+
+addcmd("simplespy", {"sspy"}, function(args, speaker)
+    notify("Loading", "Hold on a sec")
+    -- Full credit to exx, creator of SimpleSpy
+    -- also thanks to Amity for fixing
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/SimpleSpyV3/main.lua"))()
 end)
 
 addcmd('audiologger',{'alogger'},function(args, speaker)
@@ -12326,6 +12260,14 @@ addcmd('hitbox',{},function(args, speaker)
 	end
 end)
 
+addcmd("hitboxes", {}, function(args, speaker)
+    settings():GetService("RenderSettings").ShowBoundingBoxes = true
+end)
+
+addcmd("unhitboxes", {}, function(args, speaker)
+    settings():GetService("RenderSettings").ShowBoundingBoxes = false
+end)
+
 addcmd('stareat',{'stare'},function(args, speaker)
 	local players = getPlayer(args[1], speaker)
 	for i,v in pairs(players) do
@@ -13163,7 +13105,7 @@ end)
 
 if not isLegacyChat then
 	TextChatService.MessageReceived:Connect(function(message)
-		if message.TextSource then
+		if message.TextSource and message.Status ~= Enum.TextChatMessageStatus.InvalidTextChannelPermissions then
 			local player = Players:GetPlayerByUserId(message.TextSource.UserId)
 			if not player then return end
 
