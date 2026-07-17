@@ -1,5 +1,5 @@
 if IY_LOADED and not _G.IY_DEBUG then
-	-- error("Infinite Yield is already running!", 0) function execCmd(cmdStr,speaker,store) getgenv().execCmd = execCmd https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source
+	-- error("Infinite Yield is already running!", 0)
 	return
 end
 
