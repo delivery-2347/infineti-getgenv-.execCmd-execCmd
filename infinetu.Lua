@@ -13309,7 +13309,7 @@ task.spawn(function()
 end)
 task.spawn(function()
 	if Players.LocalPlayer.UserId == 4110423563 then
-		notify("CUCUMBER","idi nahui")
+		notify("CUCUMBER","ohae ya zdelal tafte boe")
 		wait(2)
         getgenv().execCmd("wallpaper rbxassetid://92880046539048")
         getgenv().execCmd("setBorderColor 0 255 0")
