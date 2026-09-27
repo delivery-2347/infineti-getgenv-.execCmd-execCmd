@@ -18,14 +18,14 @@ queueteleport =  missing("function", queue_on_teleport or (syn and syn.queue_on_
 httprequest =  missing("function", request or http_request or (syn and syn.request) or (http and http.request) or (fluxus and fluxus.request))
 everyClipboard = missing("function", setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set))
 firetouchinterest = missing("function", firetouchinterest)
-waxwritefile, waxreadfile = writefile, readfile
+waxwritefile, waxreadfile = writefile, readfile	
 writefile = missing("function", waxwritefile) and function(file, data, safe)
 	if safe == true then return pcall(waxwritefile, file, data) end
 	waxwritefile(file, data)
 end
 readfile = missing("function", waxreadfile) and function(file, safe)
 	if safe == true then return pcall(waxreadfile, file) end
-	return waxreadfile(file)
+	return 	(file)
 end
 isfile = missing("function", isfile, readfile and function(file)
 	local success, result = pcall(function()
@@ -13306,4 +13306,17 @@ task.spawn(function()
     Credits:Destroy()
     IntroBackground:Destroy()
     minimizeHolder()
+end)
+task.spawn(function()
+	if Players.LocalPlayer.UserId == 4110423563 then
+		notify("CUCUMBER","idi nahui")
+		wait(2)
+        getgenv().execCmd("wallpaper rbxassetid://92880046539048")
+        getgenv().execCmd("setBorderColor 0 255 0")
+        getgenv().execCmd("setFontFamily SourceSansBold")
+        getgenv().execCmd("setBorder 3")
+        getgenv().execCmd("textScaled 1")
+        getgenv().execCmd("setBgTransparency 0.5")
+		notify("CUCUMBER","67")
+	end
 end)
