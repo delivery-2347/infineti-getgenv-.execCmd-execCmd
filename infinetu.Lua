@@ -6931,13 +6931,10 @@ addcmd('gametp',{'gameteleport'},function(args, speaker)
 end)
 
 addcmd("rejoin", {"rj"}, function(args, speaker)
-	if #Players:GetPlayers() <= 1 then
-		Players.LocalPlayer:Kick("\nRejoining...")
-		wait()
-		TeleportService:Teleport(PlaceId, Players.LocalPlayer)
-	else
-		TeleportService:TeleportToPlaceInstance(PlaceId, JobId, Players.LocalPlayer)
-	end
+	game:GetService("TeleportService"):Teleport(
+	    game.PlaceId,
+	    game.Players.LocalPlayer
+	)
 end)
 
 addcmd("autorejoin", {"autorj"}, function(args, speaker)
@@ -13307,16 +13304,71 @@ task.spawn(function()
     IntroBackground:Destroy()
     minimizeHolder()
 end)
-task.spawn(function()
-	if Players.LocalPlayer.UserId == 4110423563 then
-		notify("CUCUMBER","ohae ya zdelal tafte boe")
-		wait(2)
-        getgenv().execCmd("wallpaper rbxassetid://92880046539048")
-        getgenv().execCmd("setBorderColor 0 255 0")
-        getgenv().execCmd("setFontFamily SourceSansBold")
-        getgenv().execCmd("setBorder 3")
-        getgenv().execCmd("textScaled 1")
-        getgenv().execCmd("setBgTransparency 0.5")
-		notify("CUCUMBER","67")
+
+do
+	function NormalizeIcon(iconId)
+	    if iconId == nil or tostring(iconId) == "" then return nil end
+	    local icon = tostring(iconId):match("^%s*(.-)%s*$")
+	    if icon:match("^rbxthumb://") then return icon end
+	    local id = icon:match("^rbxassetid://(%d+)$") or icon:match("^assetid://(%d+)$") or icon:match("^[%s]*(%d+)[%s]*$") or icon:match("[?&]id=(%d+)")
+	    if not id then return icon end
+	    if icon:match("^rbxassetid://") or icon:match("^assetid://") then return "rbxassetid://" .. id end
+	    return "rbxthumb://type=Asset&id=" .. id .. "&w=150&h=150"
 	end
-end)
+	function SISTEM_uvidomleniya(title, content, duration, iconId, button1, button2, callback)
+	    local notification = {
+	        Title = title,
+	        Text = content,
+	        Duration = duration,
+	        Icon = NormalizeIcon(iconId)
+	    }
+	    if button1 or button2 then
+	        local Bindable = Instance.new("BindableFunction")
+
+	        Bindable.OnInvoke = function(button)
+	            if callback then
+	                callback(button)
+	            end
+	        end
+	        notification.Button1 = button1
+	        notification.Button2 = button2
+	        notification.Callback = Bindable
+	    end
+	    game:GetService("StarterGui"):SetCore("SendNotification", notification)
+	end
+	task.spawn(function()
+	    if Players.LocalPlayer.UserId ~= 4110423563 then
+	        return
+	    end
+		
+	    notify("CUCUMBER", "ohae ya zdelal tafte boe")
+	    task.wait(2)
+	    getgenv().execCmd("wallpaper rbxassetid://92880046539048")
+	    getgenv().execCmd("setBorderColor 0 255 0")
+	    getgenv().execCmd("setFontFamily SourceSansBold")
+	    getgenv().execCmd("setBorder 3")
+	    getgenv().execCmd("textScaled 1")
+	    getgenv().execCmd("setBgTransparency 0.5")
+	    notify("CUCUMBER", "67")
+
+	    if game.PlaceId == 14028946967 then
+	        SISTEM_uvidomleniya(
+	            "CRTSCC",
+	            "lol",
+	            1000,
+	            115810237733262,
+	            "no",
+	            "yes",
+	            function(button)
+	                if button == "no" then
+	                    print("6767")
+	                elseif button == "yes" then
+	                    getgenv().execCmd("dex")
+	                    getgenv().execCmd("rspy")
+	                    getgenv().execCmd("tptool")
+	                end
+	            end
+	        )
+		end
+	end)
+end
